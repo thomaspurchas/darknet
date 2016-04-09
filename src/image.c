@@ -3,6 +3,7 @@
 #include "blas.h"
 #include <stdio.h>
 #include <math.h>
+#include <errno.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -135,6 +136,33 @@ void draw_detections(image im, int num, float thresh, box *boxes, float **probs,
             if (labels) draw_label(im, top + width, left, labels[class], rgb);
         }
     }
+}
+
+void print_detections(int frame, int num, float thresh, box *boxes, float **probs, char **names, image *labels, int classes)
+{
+    int i;
+
+    for(i = 0; i < num; ++i){
+        int class = max_index(probs[i], classes);
+        float prob = probs[i][class];
+        if(prob > thresh){
+            int width = pow(prob, 1./2.)*10+1;
+            printf("%s: %.2f\n", names[class], prob);
+            box b = boxes[i];
+
+            int left  = (b.x-b.w/2.)*im.w;
+            int right = (b.x+b.w/2.)*im.w;
+            int top   = (b.y-b.h/2.)*im.h;
+            int bot   = (b.y+b.h/2.)*im.h;
+
+            if(left < 0) left = 0;
+            if(right > im.w-1) right = im.w-1;
+            if(top < 0) top = 0;
+            if(bot > im.h-1) bot = im.h-1;
+
+            fprintf(stderr, "%i, %s, %.2f, %.2f, %.2f, %.2f, %.2f\n", frame, names[class], prob, top, right, bottom, left);
+        }
+    }   
 }
 
 void transpose_image(image im)
