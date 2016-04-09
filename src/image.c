@@ -138,7 +138,7 @@ void draw_detections(image im, int num, float thresh, box *boxes, float **probs,
     }
 }
 
-void print_detections(int frame, int num, float thresh, box *boxes, float **probs, char **names, image *labels, int classes)
+void print_detections(int frame, image im, int num, float thresh, box *boxes, float **probs, char **names, image *labels, int classes)
 {
     int i;
 
@@ -146,8 +146,6 @@ void print_detections(int frame, int num, float thresh, box *boxes, float **prob
         int class = max_index(probs[i], classes);
         float prob = probs[i][class];
         if(prob > thresh){
-            int width = pow(prob, 1./2.)*10+1;
-            printf("%s: %.2f\n", names[class], prob);
             box b = boxes[i];
 
             int left  = (b.x-b.w/2.)*im.w;
@@ -160,7 +158,7 @@ void print_detections(int frame, int num, float thresh, box *boxes, float **prob
             if(top < 0) top = 0;
             if(bot > im.h-1) bot = im.h-1;
 
-            fprintf(stderr, "%i, %s, %.2f, %.2f, %.2f, %.2f, %.2f\n", frame, names[class], prob, top, right, bottom, left);
+            fprintf(stderr, "%i, %s, %.2f, %i, %i, %i, %i\n", frame, names[class], prob, top, right, bot, left);
         }
     }   
 }

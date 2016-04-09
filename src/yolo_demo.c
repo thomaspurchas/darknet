@@ -27,7 +27,8 @@ static image det_s;
 static image disp ;
 static CvCapture * cap;
 static float fps = 0;
-static float demo_thresh = 0;
+static float demo_thresh = 0.001;
+static int frame_num = 0;
 
 void *fetch_in_thread(void *ptr)
 {
@@ -51,6 +52,8 @@ void *detect_in_thread(void *ptr)
     printf("\nFPS:%.0f\n",fps);
     printf("Objects:\n\n");
     draw_detections(det, l.side*l.side*l.n, demo_thresh, boxes, probs, voc_names, voc_labels, 20);
+    print_detections(frame_num, det, l.side*l.side*l.n, demo_thresh, boxes, probs, voc_names, voc_labels, 20);
+    frame_num++;
     return 0;
 }
 
