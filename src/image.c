@@ -863,6 +863,26 @@ void show_image_cv(image p, const char *name)
         return out;
     }
 
+    IplImage* image_to_ipl(image src)
+    {
+        image copy = copy_image(src);
+        rgbgr_image(copy);
+
+        int x,y,k;
+
+        IplImage* disp = cvCreateImage(cvSize(src.w, src.h), IPL_DEPTH_8U, src.c);
+        int step = disp->widthStep;
+        for(y = 0; y < src.h; ++y) {
+            for(x = 0; x < src.w; ++x) {
+                for(k= 0; k < src.c; ++k) {
+                    disp->imageData[y*step + x*src.c + k] = (unsigned char)(get_pixel(copy,x,y,k)*255);
+                }
+            }
+        }
+        free_image(copy);
+        return disp;
+    }
+
     image load_image_cv(char *filename, int channels)
     {
         IplImage* src = 0;

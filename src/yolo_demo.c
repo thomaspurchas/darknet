@@ -73,8 +73,13 @@ void demo_yolo(char *cfgfile, char *weightfile, float thresh, int cam_index, cha
     }
 
     if(!cap) error("Couldn't connect to webcam.\n");
-    cvNamedWindow("YOLO", CV_WINDOW_NORMAL); 
-    cvResizeWindow("YOLO", 512, 512);
+    //cvNamedWindow("YOLO", CV_WINDOW_NORMAL); 
+    //cvResizeWindow("YOLO", 512, 512);
+
+    CvSize cap_size = cvSize(cvGetCaptureProperty(cap, CV_CAP_PROP_FRAME_WIDTH), cvGetCaptureProperty(cap, CV_CAP_PROP_FRAME_HEIGHT));
+    CvVideoWriter* out = cvCreateVideoWriter("output.avi", CV_FOURCC('X','V','I','D'), cvGetCaptureProperty(cap, CV_CAP_PROP_FPS),  cap_size, 1);
+
+    if(!out) error("Couldn't open output file.\n");
 
     detection_layer l = net.layers[net.n-1];
     int j;
@@ -101,9 +106,13 @@ void demo_yolo(char *cfgfile, char *weightfile, float thresh, int cam_index, cha
         gettimeofday(&tval_before, NULL);
         if(pthread_create(&fetch_thread, 0, fetch_in_thread, 0)) error("Thread creation failed");
         if(pthread_create(&detect_thread, 0, detect_in_thread, 0)) error("Thread creation failed");
-        show_image(disp, "YOLO");
+        //show_image(disp, "YOLO");
+        IplImage* out_frame = image_to_ipl(disp);
+        printf("Write frame/n");
+        cvWriteFrame(out, out_frame);
+        cvReleaseImage(&out_frame);
         free_image(disp);
-        cvWaitKey(1);
+        //cvWaitKey(1);
         pthread_join(fetch_thread, 0);
         pthread_join(detect_thread, 0);
 
